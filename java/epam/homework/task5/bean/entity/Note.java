@@ -1,10 +1,8 @@
 package epam.homework.task5.bean.entity;
 
-import java.io.Serializable;
-
 import epam.homework.task5.date.FullDate;
 
-public class Note implements Serializable {
+public class Note{
 
 	FullDate date = new FullDate();
 

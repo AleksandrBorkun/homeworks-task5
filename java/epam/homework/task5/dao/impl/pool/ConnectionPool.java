@@ -14,14 +14,14 @@ public class ConnectionPool {
 	private ConnectionPool(){
 	
 	try {
-			// load driver
-			DriverManager.registerDriver(new com.mysql.jdbc.Driver());
-			// for()
+
+		Class.forName("com.mysql.jdbc.Driver");
 			for(int index = 0; index<pool.remainingCapacity(); index++ ){
 				pool.add(DriverManager.getConnection("jdbc:mysql://localhost:3306/NOTEBOOK?useSSL=false", "root", "root"));
 						}
 	} catch (SQLException e) {
-		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (ClassNotFoundException e) {
 		e.printStackTrace();
 	}
 	}
@@ -37,7 +37,7 @@ public class ConnectionPool {
 			return;
 		}
 		connection.setAutoCommit(true);
-		connection.setReadOnly(true);
+		connection.setReadOnly(false);
 		
 		pool.put(connection);
 	}

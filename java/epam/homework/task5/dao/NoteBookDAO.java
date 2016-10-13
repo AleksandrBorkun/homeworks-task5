@@ -1,5 +1,7 @@
 package epam.homework.task5.dao;
 
+import java.util.List;
+
 import epam.homework.task5.bean.entity.Note;
 
 public interface NoteBookDAO {
@@ -13,6 +15,10 @@ public interface NoteBookDAO {
 	void findNotesByDate(String dateKey, int userID);
 
 	void showAllNotes(int userID);
+
+	void saveNoteBook(int userID);
+
+	void loadNotesFromFile(List<Note> note);
 	
 	
 

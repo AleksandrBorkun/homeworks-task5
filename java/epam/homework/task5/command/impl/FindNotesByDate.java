@@ -3,7 +3,6 @@ package epam.homework.task5.command.impl;
 import epam.homework.task5.bean.FindNotesByDateRequest;
 import epam.homework.task5.bean.Request;
 import epam.homework.task5.bean.Response;
-import epam.homework.task5.bean.entity.Note;
 import epam.homework.task5.command.Command;
 import epam.homework.task5.command.exception.CommandException;
 import epam.homework.task5.service.NoteBookService;

@@ -4,11 +4,10 @@ package epam.homework.task5.command.impl;
 import epam.homework.task5.bean.AddNoteRequest;
 import epam.homework.task5.bean.Request;
 import epam.homework.task5.bean.Response;
+import epam.homework.task5.bean.entity.Note;
 import epam.homework.task5.command.Command;
 import epam.homework.task5.command.exception.CommandException;
-import epam.homework.task5.service.NoteBookService;
-import epam.homework.task5.service.ServiceFactory;
-import epam.homework.task5.service.exception.ServiceException;
+import epam.homework.task5.dao.factory.DAOFactory;
 
 public class AddNewNote implements Command {
 
@@ -26,19 +25,16 @@ public class AddNewNote implements Command {
 		String note = req.getNote();
 		int userID = req.getUserID();
 
-		ServiceFactory service = ServiceFactory.getInstance();
-		NoteBookService nbService = service.getNoteBookService();
-		
-		try {
-			nbService.addNote(note, userID);
-			response.setErrorStatus(false);
-			response.setResultMessage("All OK!");
-
-		} catch (ServiceException e) {
+		if (note == null || "".equals(note)) {
 			response.setErrorStatus(true);
-			response.setErrorMessage("Oooops! I think you write an empty notes. Try again!");
+			response.setErrorMessage("Don't try to add an empty note");
 			return response;
-		}		
+		}
+
+		
+		DAOFactory.getInstance().getNoteBookDAO().addNote(new Note(note), userID);
+		response.setErrorStatus(false);
+		response.setResultMessage("You already add a note!");
 
 
 		return response;

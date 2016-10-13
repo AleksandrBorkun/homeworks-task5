@@ -124,9 +124,6 @@ public class View {
 					break;
 				}
 				SaveNotesRequest save = new SaveNotesRequest();
-				System.out.println("Now Progam will save all your notes in file. Pls write the name of it: \n");
-				String saveFileName = in.nextLine() + ".txt";
-				save.setFileName(saveFileName);
 				save.setCommandName("SAVE");
 				Response saveResponse = controller.doRequest(save);
 				if (saveResponse.isErrorStatus() == true) {
@@ -135,6 +132,7 @@ public class View {
 					System.out.println(saveResponse.getResultMessage());
 				}
 				break;
+				
 			// FIND NOTES BY DATE
 			case "6":
 				if (SQLUser.getUserID() == 0) {

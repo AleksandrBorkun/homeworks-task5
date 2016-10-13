@@ -12,6 +12,7 @@ import epam.homework.task5.dao.impl.pool.ConnectionPool;
 
 public class UserDAOImpl implements UserDAO {
 
+	// реализация авторизации
 	@Override
 	public boolean logination(String login, String password) throws DAOException {
 		// TODO Auto-generated method stub
@@ -27,7 +28,7 @@ public class UserDAOImpl implements UserDAO {
 			else {
 				result.next();
 				int userID = result.getInt("id");
-				System.out.println(userID);
+			//	System.out.println(userID);  
 				SQLUser.setUserID(userID);
 				return true;
 			}
@@ -51,6 +52,7 @@ public class UserDAOImpl implements UserDAO {
 
 	}
 
+	// регистрация пользователя в БД
 	@Override
 	public boolean registration(String login, String password) throws DAOException {
 

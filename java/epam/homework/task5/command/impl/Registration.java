@@ -13,7 +13,7 @@ public class Registration implements Command {
 	@Override
 	public Response execute(Request request) throws CommandException {
 
-		Response res = new Response();
+		Response response = new Response();
 		RegistrationRequest req = new RegistrationRequest();
 
 		if (request instanceof RegistrationRequest) {
@@ -27,19 +27,19 @@ public class Registration implements Command {
 
 		try {
 			if (DAOFactory.getInstance().getUserDAO().registration(login, pass)) {
-				res.setErrorStatus(false);
-				res.setResultMessage("Everythings Great!");
-				return res;
+				response.setErrorStatus(false);
+				response.setResultMessage("Everythings Great!");
+				return response;
 			} else {
-				res.setErrorStatus(true);
-				res.setErrorMessage("User is not register yet. Follow the registration and try again!");
-				return res;
+				response.setErrorStatus(true);
+				response.setErrorMessage("User is not register yet. Follow the registration and try again!");
+				return response;
 			}
 		} catch (DAOException e) {
 			System.out.println(e.getMessage());
-			res.setErrorStatus(true);
-			res.setErrorMessage("SOMETHING'S WHERY BAD");
-			return res;
+			response.setErrorStatus(true);
+			response.setErrorMessage("SOMETHING'S WHERY BAD");
+			return response;
 		}
 		
 
