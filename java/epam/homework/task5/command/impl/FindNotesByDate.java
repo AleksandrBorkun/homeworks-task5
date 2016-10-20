@@ -28,14 +28,21 @@ public class FindNotesByDate implements Command {
 
 	
 			try {
-				nbService.findNotesByDate(dateKey, req.getUserID());
+				if(nbService.findNotesByDate(dateKey, req.getUserID())){
+					response.setErrorStatus(false);
+					response.setResultMessage("\nSearch by date complete success\n");	
+				}
+				else{
+					response.setErrorStatus(true);
+					response.setErrorMessage("Wrong Date. Can't do the search");
+				}
 			} catch (ServiceException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				response.setErrorStatus(true);
+				response.setErrorMessage("\nWrong Date. Can't do the search");
 			}
 
-		response.setErrorStatus(false);
-		response.setResultMessage("\nSearch by date complete success\n");
 		return response;
 	}
 

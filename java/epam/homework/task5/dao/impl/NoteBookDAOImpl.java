@@ -31,11 +31,15 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 				int result = st.executeUpdate("INSERT INTO note(user_id, content, date) VALUES(" + userID + ",'"
 						+ note.getNote() + "','" + note.getDate() + "');");
 				st.close();
-				return true;
+				if (result != 0) {
+					return true;
+				} else {
+					return false;
+				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 				return false;
-				
+
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -65,7 +69,11 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 			try (Statement st = con.createStatement()) {
 				int result = st.executeUpdate("delete FROM note where user_id='" + userID + "';");
 				st.close();
-				return true;
+				if (result != 0) {
+					return true;
+				} else {
+					return false;
+				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 				return false;
@@ -78,10 +86,8 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 				try {
 					ConnectionPool.getInstance().returnConnection(con);
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -115,7 +121,7 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 			e.getStackTrace();
 			return false;
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 			return false;
 		} finally {
@@ -156,12 +162,12 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		} catch (
 
 		InterruptedException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		} finally {
 			if (st != null) {
@@ -200,17 +206,16 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		} finally {
 			if (con != null)
 				try {
 					ConnectionPool.getInstance().returnConnection(con);
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
+
 					e.printStackTrace();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 		}
@@ -243,20 +248,20 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		} finally {
 			if (con != null)
 				try {
 					ConnectionPool.getInstance().returnConnection(con);
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
+
 					e.printStackTrace();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
+
 					e.printStackTrace();
 				}
 		}

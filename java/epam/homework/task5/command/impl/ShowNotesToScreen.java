@@ -1,7 +1,5 @@
 package epam.homework.task5.command.impl;
 
-import java.util.List;
-
 import epam.homework.task5.bean.Request;
 import epam.homework.task5.bean.Response;
 import epam.homework.task5.bean.entity.SQLUser;
