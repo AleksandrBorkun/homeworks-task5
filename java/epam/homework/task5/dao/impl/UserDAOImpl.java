@@ -33,9 +33,10 @@ public class UserDAOImpl implements UserDAO {
 				return true;
 			}
 		} catch (SQLException e) {
-			throw new DAOException();
+			throw new DAOException("Houston Here is some problem with connect. Don't give up our command help you as soon as posible");
+			
 		} catch (InterruptedException e) {
-			throw new DAOException();
+			throw new DAOException("Houston Here is some problem with connect. Don't give up our command help you as soon as posible");
 		} finally {
 			if (st != null) {
 				try {

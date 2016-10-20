@@ -20,7 +20,7 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 
 	// добавление записи в БД
 	@Override
-	public void addNote(Note note, int userID) {
+	public boolean addNote(Note note, int userID) {
 
 		Connection con = null;
 
@@ -31,11 +31,15 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 				int result = st.executeUpdate("INSERT INTO note(user_id, content, date) VALUES(" + userID + ",'"
 						+ note.getNote() + "','" + note.getDate() + "');");
 				st.close();
+				return true;
 			} catch (SQLException e) {
 				e.printStackTrace();
+				return false;
+				
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+			return false;
 		} finally {
 			if (con != null) {
 				try {
@@ -52,7 +56,7 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 
 	// создание нового noteBook'a сопровождаеться чисткой всех записей в БД
 	@Override
-	public void createNewNoteBook(int userID) {
+	public boolean createNewNoteBook(int userID) {
 
 		Connection con = null;
 
@@ -61,11 +65,14 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 			try (Statement st = con.createStatement()) {
 				int result = st.executeUpdate("delete FROM note where user_id='" + userID + "';");
 				st.close();
+				return true;
 			} catch (SQLException e) {
 				e.printStackTrace();
+				return false;
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+			return false;
 		} finally {
 			if (con != null) {
 				try {
@@ -84,7 +91,7 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 
 	// поиск записей в БД по содержимому
 	@Override
-	public void findNoteByContent(String content, int userID) {
+	public boolean findNoteByContent(String content, int userID) {
 
 		Connection con = null;
 		Statement st = null;
@@ -103,13 +110,14 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 				st.close();
 
 			}
+			return true;
 		} catch (SQLException e) {
 			e.getStackTrace();
-		} catch (
-
-		InterruptedException e) {
+			return false;
+		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		} finally {
 			if (st != null) {
 				try {

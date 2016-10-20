@@ -32,9 +32,13 @@ public class AddNewNote implements Command {
 		}
 
 		
-		DAOFactory.getInstance().getNoteBookDAO().addNote(new Note(note), userID);
+		if(DAOFactory.getInstance().getNoteBookDAO().addNote(new Note(note), userID)){
 		response.setErrorStatus(false);
-		response.setResultMessage("You already add a note!");
+		response.setResultMessage("You already add a note!");}
+		else{
+			response.setErrorStatus(true);
+			response.setErrorMessage("We can't save your note now. Our command working to fix it. Please try again with another note");
+		}
 
 
 		return response;

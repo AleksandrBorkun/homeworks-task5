@@ -20,10 +20,15 @@ public class FindNotes implements Command {
 		}
 
 		String keyWord = req.getKeyWords();
-		DAOFactory.getInstance().getNoteBookDAO().findNoteByContent(keyWord, req.getUserID());
+		
+		if(DAOFactory.getInstance().getNoteBookDAO().findNoteByContent(keyWord, req.getUserID())){
 
 		response.setErrorStatus(false);
-		response.setResultMessage("\nSearch completed success\n");
+		response.setResultMessage("\nSearch completed success\n");}
+		else{
+			response.setErrorStatus(true);
+			response.setErrorMessage("Houston We have a Problem! Save not completed!!!");
+		}
 
 		return response;
 	}

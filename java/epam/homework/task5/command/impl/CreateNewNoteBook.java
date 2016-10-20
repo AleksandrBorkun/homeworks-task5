@@ -14,10 +14,15 @@ public class CreateNewNoteBook implements Command {
 		Response response = new Response();
 
 		int userID = SQLUser.getUserID();
-		DAOFactory.getInstance().getNoteBookDAO().createNewNoteBook(userID);
+		
+		if(DAOFactory.getInstance().getNoteBookDAO().createNewNoteBook(userID)){
 
 		response.setErrorStatus(false);
-		response.setResultMessage("NoteBook created success!");
+		response.setResultMessage("NoteBook created success!");}
+		else{
+			response.setErrorStatus(true);
+			response.setErrorMessage("Houston We have a Problem! Can't to create a NoteBook");
+		}
 
 		return response;
 	}
