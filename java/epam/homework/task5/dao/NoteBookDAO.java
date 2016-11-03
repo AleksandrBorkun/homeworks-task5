@@ -3,22 +3,23 @@ package epam.homework.task5.dao;
 import java.util.List;
 
 import epam.homework.task5.bean.entity.Note;
+import epam.homework.task5.dao.exception.DAOException;
 
 public interface NoteBookDAO {
 	
-	boolean addNote(Note note, int userID);
+	boolean addNote(Note note, int userID) throws DAOException;
 
-	boolean createNewNoteBook(int userID);
+	boolean createNewNoteBook(int userID) throws DAOException;
 
-	boolean findNoteByContent(String keyWord, int userID);
+	List<String> findNoteByContent(String keyWord, int userID) throws DAOException;
 
-	void findNotesByDate(String dateKey, int userID);
+	List<String> findNotesByDate(String dateKey, int userID) throws DAOException;
 
-	void showAllNotes(int userID);
+	List<String> showAllNotes(int userID) throws DAOException;
 
-	void saveNoteBook(int userID);
+	boolean saveNoteBook(int userID) throws DAOException;
 
-	void loadNotesFromFile(List<Note> note);
+	boolean loadNotesFromFile(List<Note> note) throws DAOException;
 	
 	
 

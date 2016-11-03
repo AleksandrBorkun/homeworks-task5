@@ -5,7 +5,8 @@ import epam.homework.task5.bean.Response;
 import epam.homework.task5.bean.entity.SQLUser;
 import epam.homework.task5.command.Command;
 import epam.homework.task5.command.exception.CommandException;
-import epam.homework.task5.dao.factory.DAOFactory;
+import epam.homework.task5.service.ServiceFactory;
+import epam.homework.task5.service.exception.ServiceException;
 
 public class CreateNewNoteBook implements Command {
 
@@ -14,14 +15,19 @@ public class CreateNewNoteBook implements Command {
 		Response response = new Response();
 
 		int userID = SQLUser.getUserID();
-		
-		if(DAOFactory.getInstance().getNoteBookDAO().createNewNoteBook(userID)){
 
-		response.setErrorStatus(false);
-		response.setResultMessage("NoteBook created success!");}
-		else{
+		try {
+			if (ServiceFactory.getInstance().getNoteBookService().createNewNoteBook(userID)) {
+				response.setErrorStatus(false);
+				response.setResultMessage("NoteBook created success!");
+			} else {
+				response.setErrorStatus(true);
+				response.setErrorMessage("Houston We have a Problem! Can't to create a NoteBook");
+			}
+		} catch (ServiceException e) {
 			response.setErrorStatus(true);
-			response.setErrorMessage("Houston We have a Problem! Can't to create a NoteBook");
+			response.setErrorMessage(e.getMessage());
+			return response;
 		}
 
 		return response;

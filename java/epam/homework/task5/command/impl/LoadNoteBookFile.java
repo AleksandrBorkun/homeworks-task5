@@ -1,6 +1,5 @@
 package epam.homework.task5.command.impl;
 
-
 import epam.homework.task5.bean.LoadFileRequest;
 import epam.homework.task5.bean.Request;
 import epam.homework.task5.bean.Response;
@@ -28,16 +27,21 @@ public class LoadNoteBookFile implements Command {
 		NoteBookService nbService = service.getNoteBookService();
 
 		try {
-			nbService.loadNoteBookFromFile(fileName);
-			response.setErrorStatus(false);
-			response.setResultMessage(fileName + " is load to SQL-Base success!");
+			if (nbService.loadNoteBookFromFile(fileName)) {
+				response.setErrorStatus(false);
+				response.setResultMessage(fileName + " is load to SQL-Base success!");
+				return response;
+			} else {
+				response.setErrorStatus(true);
+				response.setErrorMessage("OOoops! Something was wrong!");
+				return response;
+			}
 		} catch (ServiceException e1) {
 			response.setErrorStatus(true);
-			response.setErrorMessage("Ooops.. make sure that you have wrote a file name, and try do it again");
+			response.setErrorMessage(e1.getMessage());
 			return response;
 		}
 
-		return response;
 	}
 
 }

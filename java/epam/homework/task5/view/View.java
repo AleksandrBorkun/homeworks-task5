@@ -1,5 +1,7 @@
 package epam.homework.task5.view;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import epam.homework.task5.bean.AddNoteRequest;
@@ -104,6 +106,7 @@ public class View {
 					System.out.println("Authentification ERROR! Logon and try AGAIN!");
 					break;
 				}
+				List<String> findNoteByContent = new ArrayList<>();
 				FindNotesRequest find = new FindNotesRequest();
 				find.setCommandName("FIND_NOTES");
 				System.out.println("To Find Notes By Content, pls write your key word for search: ");
@@ -113,6 +116,12 @@ public class View {
 				if (findContent.isErrorStatus() == true) {
 					System.out.println(findContent.getErrorMessage());
 				} else {
+
+					findNoteByContent = findContent.getFindNoteByContent();
+					for (String line : findNoteByContent) {
+						System.out.println(line);
+					}
+
 					System.out.println(findContent.getResultMessage());
 				}
 				break;
@@ -132,13 +141,14 @@ public class View {
 					System.out.println(saveResponse.getResultMessage());
 				}
 				break;
-				
+
 			// FIND NOTES BY DATE
 			case "6":
 				if (SQLUser.getUserID() == 0) {
 					System.out.println("Authentification ERROR! Logon and try AGAIN!");
 					break;
 				}
+				List<String> findNotesByDateLsit = new ArrayList<>();
 				FindNotesByDateRequest findByDateRequest = new FindNotesByDateRequest();
 				findByDateRequest.setCommandName("FIND_NOTES_BY_DATE");
 				System.out
@@ -150,6 +160,10 @@ public class View {
 					System.out.println(findByDate.getErrorMessage());
 
 				} else {
+					findNotesByDateLsit = findByDate.getFindNotesByDateLsit();
+					for (String line : findNotesByDateLsit) {
+						System.out.println(line);
+					}
 					System.out.println(findByDate.getResultMessage());
 				}
 				break;
@@ -159,12 +173,19 @@ public class View {
 					System.out.println("Authentification ERROR! Logon and try AGAIN!");
 					break;
 				}
+				List<String> showNotesList = new ArrayList<>();
 				Request request = new Request();
 				request.setCommandName("SHOW_NOTES_TO_SCREEN");
 				Response showResponse = controller.doRequest(request);
 				if (showResponse.isErrorStatus() == true) {
 					System.out.println(showResponse.getErrorMessage());
 				} else {
+
+					showNotesList = showResponse.getShowNotesList();
+					for (String line : showNotesList) {
+						System.out.println(line);
+					}
+
 					System.out.println(showResponse.getResultMessage());
 				}
 				break;

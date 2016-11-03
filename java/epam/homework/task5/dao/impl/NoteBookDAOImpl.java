@@ -9,18 +9,20 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import epam.homework.task5.bean.entity.Note;
 import epam.homework.task5.bean.entity.SQLUser;
 import epam.homework.task5.dao.NoteBookDAO;
+import epam.homework.task5.dao.exception.DAOException;
 import epam.homework.task5.dao.impl.pool.ConnectionPool;
 
 public class NoteBookDAOImpl implements NoteBookDAO {
 
 	// добавление записи в БД
 	@Override
-	public boolean addNote(Note note, int userID) {
+	public boolean addNote(Note note, int userID) throws DAOException {
 
 		Connection con = null;
 
@@ -34,24 +36,22 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 				if (result != 0) {
 					return true;
 				} else {
-					return false;
+					throw new DAOException("Operation crash! Can't add note. Pls try again");
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
-				return false;
+				throw new DAOException(e.getMessage());
 
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
-			return false;
+			throw new DAOException(e.getMessage());
 		} finally {
 			if (con != null) {
 				try {
 					ConnectionPool.getInstance().returnConnection(con);
 				} catch (SQLException e) {
-					e.printStackTrace();
+					throw new DAOException(e.getMessage());
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					throw new DAOException(e.getMessage());
 				}
 			}
 		}
@@ -60,35 +60,28 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 
 	// создание нового noteBook'a сопровождаеться чисткой всех записей в БД
 	@Override
-	public boolean createNewNoteBook(int userID) {
+	public boolean createNewNoteBook(int userID) throws DAOException {
 
 		Connection con = null;
 
 		try {
 			con = ConnectionPool.getInstance().getConnection();
-			try (Statement st = con.createStatement()) {
-				int result = st.executeUpdate("delete FROM note where user_id='" + userID + "';");
-				st.close();
-				if (result != 0) {
-					return true;
-				} else {
-					return false;
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-				return false;
+			Statement st = con.createStatement();
+			int result = st.executeUpdate("delete FROM note where user_id='" + userID + "';");
+			st.close();
+			if (result != 0) {
+				return true;
+			} else {
+				throw new DAOException("OOooppps!!! Operation failed!");
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			return false;
+		} catch (SQLException | InterruptedException e) {
+			throw new DAOException(e.getMessage());
 		} finally {
 			if (con != null) {
 				try {
 					ConnectionPool.getInstance().returnConnection(con);
-				} catch (SQLException e) {
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				} catch (SQLException | InterruptedException e) {
+					throw new DAOException(e.getMessage());
 				}
 			}
 		}
@@ -97,8 +90,9 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 
 	// поиск записей в БД по содержимому
 	@Override
-	public boolean findNoteByContent(String content, int userID) {
+	public List<String> findNoteByContent(String content, int userID) throws DAOException {
 
+		List<String> findNoteByContent = new ArrayList<>();
 		Connection con = null;
 		Statement st = null;
 		try {
@@ -106,24 +100,24 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 			st = con.createStatement();
 			ResultSet result = st.executeQuery(
 					"SELECT * FROM note where user_id='" + userID + "' and content like('%" + content + "%');");
+
 			if (result.next() == false) {
-				System.out.println("Nothing was found by that CONTAINS");
-				st.close();
+				throw new DAOException("Nothing was found");
 			} else {
 				do {
-					System.out.println(result.getString("content") + " " + result.getString("date"));
+					findNoteByContent.add(result.getString("content") + " " + result.getString("date"));
 				} while (result.next());
 				st.close();
 
 			}
-			return true;
+			return findNoteByContent;
 		} catch (SQLException e) {
 			e.getStackTrace();
-			return false;
+			return null;
 		} catch (InterruptedException e) {
 
 			e.printStackTrace();
-			return false;
+			return null;
 		} finally {
 			if (st != null) {
 				try {
@@ -142,8 +136,9 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 
 	// поиск записей в БД по Дате
 	@Override
-	public void findNotesByDate(String dateKey, int userID) {
+	public List<String> findNotesByDate(String dateKey, int userID) throws DAOException {
 
+		List<String> findNotesByDateLsit = new ArrayList<>();
 		Connection con = null;
 		Statement st = null;
 		try {
@@ -152,23 +147,19 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 			ResultSet result = st.executeQuery(
 					"SELECT * FROM note where user_id='" + userID + "' and date having('" + dateKey + "');");
 			if (result.next() == false) {
-				System.out.println("Nothing was found by that Date");
-				st.close();
+				throw new DAOException("Nothing was found!");
 			} else {
 				do {
-					System.out.println(result.getString("content") + " " + result.getString("date"));
+					findNotesByDateLsit.add(result.getString("content") + " " + result.getString("date"));
 				} while (result.next());
 				st.close();
 
 			}
-		} catch (SQLException e) {
+			return findNotesByDateLsit;
+		} catch (SQLException | InterruptedException e) {
 
-			e.printStackTrace();
-		} catch (
+			throw new DAOException(e.getMessage());
 
-		InterruptedException e) {
-
-			e.printStackTrace();
 		} finally {
 			if (st != null) {
 				try {
@@ -178,45 +169,42 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 			}
 			try {
 				ConnectionPool.getInstance().returnConnection(con);
-			} catch (SQLException e) {
-			} catch (InterruptedException e) {
+			} catch (SQLException | InterruptedException e) {
+				throw new DAOException(e.getMessage());
 			}
 		}
 	}
 
 	// показать все записи пользователя в БД
 	@Override
-	public void showAllNotes(int userID) {
+	public List<String> showAllNotes(int userID) throws DAOException {
+
 		Connection con = null;
 		Statement st = null;
 
+		List<String> showNotesList = new ArrayList<>();
 		try {
 			con = ConnectionPool.getInstance().getConnection();
 			st = con.createStatement();
 			ResultSet rs = st.executeQuery("SELECT * FROM note WHERE user_id='" + userID + "';");
 			if (rs.next() == false) {
-				System.out.println("You didn't wrote any note yet!!!");
 				st.close();
+				throw new DAOException("Notes does not added yet");
 			} else {
 				do {
-					System.out.println(rs.getString("content") + " " + rs.getString("date"));
+					showNotesList.add(rs.getString("content") + " " + rs.getString("date"));
 				} while (rs.next());
 				st.close();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-
-			e.printStackTrace();
+			return showNotesList;
+		} catch (SQLException | InterruptedException e) {
+			throw new DAOException(e.getMessage());
 		} finally {
 			if (con != null)
 				try {
 					ConnectionPool.getInstance().returnConnection(con);
-				} catch (SQLException e) {
-
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				} catch (SQLException | InterruptedException e) {
+					throw new DAOException(e.getMessage());
 				}
 		}
 
@@ -224,7 +212,8 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 
 	// сохранить все записи пользователя из БД в текстовый файл
 	@Override
-	public void saveNoteBook(int userID) {
+	public boolean saveNoteBook(int userID) throws DAOException {
+
 		Connection con = null;
 		Statement st = null;
 		File file = new File("NoteBookUser" + userID + ".txt");
@@ -235,8 +224,8 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 			st = con.createStatement();
 			ResultSet rs = st.executeQuery("SELECT * FROM note WHERE user_id='" + userID + "';");
 			if (rs.next() == false) {
-				System.out.println("You didn't wrote any note yet!!!");
 				st.close();
+				throw new DAOException("You didn't wrote any note yet!!!");
 			} else {
 				pr = new PrintWriter(new BufferedWriter(new FileWriter(file)));
 				do {
@@ -245,37 +234,28 @@ public class NoteBookDAOImpl implements NoteBookDAO {
 				pr.close();
 				st.close();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-
-			e.printStackTrace();
-		} catch (IOException e) {
-
-			e.printStackTrace();
+			return true;
+		} catch (SQLException | InterruptedException | IOException e) {
+			throw new DAOException(e.getMessage());
 		} finally {
 			if (con != null)
 				try {
 					ConnectionPool.getInstance().returnConnection(con);
-				} catch (SQLException e) {
-
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-
-					e.printStackTrace();
+				} catch (SQLException | InterruptedException e) {
+					throw new DAOException(e.getMessage());
 				}
 		}
-
 	}
 
 	// записать содержимое текстового файла в БД пользователя
 	@Override
-	public void loadNotesFromFile(List<Note> note) {
+	public boolean loadNotesFromFile(List<Note> note) throws DAOException {
 
 		int userID = SQLUser.getUserID();
 		for (Note someNote : note)
 			addNote(someNote, userID);
 
+		return true;
 	}
 
 }

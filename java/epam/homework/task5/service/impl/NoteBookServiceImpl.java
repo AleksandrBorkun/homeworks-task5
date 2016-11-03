@@ -5,9 +5,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import epam.homework.task5.bean.entity.Note;
 import epam.homework.task5.bean.entity.NoteBook;
+import epam.homework.task5.dao.exception.DAOException;
 import epam.homework.task5.dao.factory.DAOFactory;
 import epam.homework.task5.date.DateChekFormat;
 import epam.homework.task5.service.NoteBookService;
@@ -18,7 +21,7 @@ public class NoteBookServiceImpl implements NoteBookService {
 
 	// проверка валидности даты и передача управления слою ДАО
 	@Override
-	public boolean findNotesByDate(String dateKey, int userID) throws ServiceException {
+	public List<String> findNotesByDate(String dateKey, int userID) throws ServiceException {
 
 		// parameters validation
 
@@ -27,137 +30,167 @@ public class NoteBookServiceImpl implements NoteBookService {
 					"WRONG FORMAT" + dateKey + "\nPlease write date in correct format. \'yyyy-MM-dd\' ");
 		}
 
-		// после проверки даты на валидность передаем ее слою ДАО на выполнение
-		DAOFactory.getInstance().getNoteBookDAO().findNotesByDate(dateKey, userID);
+		List<String> findNotesByDateLsit = new ArrayList<>();
 
-		return false;
+		// после проверки даты на валидность передаем ее слою ДАО на выполнение
+		try {
+			findNotesByDateLsit = DAOFactory.getInstance().getNoteBookDAO().findNotesByDate(dateKey, userID);
+			if (findNotesByDateLsit == null) {
+				throw new ServiceException("Nothing was found");
+			}
+			return findNotesByDateLsit;
+		} catch (DAOException e) {
+			throw new ServiceException(e.getMessage());
+		}
 
 	}
 
 	// считываем информацию из файла и передаем в notebook
 	@Override
-	public void loadNoteBookFromFile(String loadFileName) throws ServiceException {
+	public boolean loadNoteBookFromFile(String loadFileName) throws ServiceException {
 
+		loadFileName = loadFileName.trim();
+		if (loadFileName == null || loadFileName.length() < 1) {
+			throw new ServiceException("ERROR! Wrong name!");
+		}
 		NoteBook noteBook = NoteBookProvider.getInstance().getNoteBook();
 		noteBook.clearNoteBook();
 
-		
-			File loadFile = new File("./");
-			String[] find = loadFile.list();
-			int count = 0;
-			for (String searchName : find) {
-				if (searchName.equals(loadFileName)) {
-					File f = new File(searchName);
-					BufferedReader bf;
-					try {
-						bf = new BufferedReader(new FileReader(f));
-						String line;
-						while ((line = bf.readLine()) != null)
-						noteBook.add(new Note(line));	
-						bf.close();
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					count++;
-					}
+		File loadFile = new File("./");
+		String[] find = loadFile.list();
+		int count = 0;
+		for (String searchName : find) {
+			if (searchName.equals(loadFileName)) {
+				File f = new File(searchName);
+				BufferedReader bf;
+				try {
+					bf = new BufferedReader(new FileReader(f));
+					String line;
+					while ((line = bf.readLine()) != null)
+						noteBook.add(new Note(line));
+					bf.close();
+				} catch (FileNotFoundException e) {
+					throw new ServiceException(e.getMessage());
+				} catch (IOException e) {
+					throw new ServiceException(e.getMessage());
 				}
-			if(count == 0){
-				throw new ServiceException("File not found.");
+				count++;
 			}
+		}
+		if (count == 0) {
+			throw new ServiceException("File not found.");
+		}
 
 		// после успешной записи файла передаем ноутбук на выполнение в слой ДАО
-		DAOFactory.getInstance().getNoteBookDAO().loadNotesFromFile(noteBook.getNotes());
-	}
-	}
-	/*
-	 * Данные методы не используеться в новой версии NoteBook
-	 * 
-	 * 
-	 * @Override public void createNewNoteBook(int userID) {
-	 * 
-	 * DAOFactory.getInstance().getNoteBookDAO().createNewNoteBook(userID);
-	 * 
-	 * // NoteBook noteBook = NoteBookProvider.getInstance().getNoteBook(); //
-	 * noteBook.clearNoteBook();
-	 * 
-	 * }
-	 * 
-	 * public void addNote(String note, int userID) throws ServiceException {
-	 * 
-	 * // parameters validation if (note == null || "".equals(note)) { throw new
-	 * ServiceException("Wrong parameter!"); }
-	 * 
-	 * Note newNote = new Note(note);
-	 * 
-	 * NoteBook noteBook = NoteBookProvider.getInstance().getNoteBook();
-	 * noteBook.add(newNote);
-	 * 
-	 * }
-	 * 
-	 * 
-	 * 
-	 * 
-	 * public List<Note> findNotesByContent(String keyWords) throws
-	 * ServiceException {
-	 * 
-	 * // parameters validation
-	 * 
-	 * if (keyWords == null || "".equals(keyWords)) {
-	 * 
-	 * throw new ServiceException("Wrong parameter!");
-	 * 
-	 * }
-	 * 
-	 * List<Note> foundNotes = new ArrayList<Note>();
-	 * 
-	 * NoteBook noteBook = NoteBookProvider.getInstance().getNoteBook();
-	 * 
-	 * foundNotes = noteBook.FindNotesByContent(keyWords); if
-	 * (foundNotes.isEmpty())
-	 * System.out.println("There is nothing found by yor request"); else
-	 * System.out.println("\nHere is found notes:\n"); return foundNotes;
-	 * 
-	 * }
-	 * 
-	 * 
-	 * 
-	 * @Override
-	 * 
-	 * public void saveNoteBookToFile(String fileLocation) throws
-	 * ServiceException {
-	 * 
-	 * try {
-	 * 
-	 * FileOutputStream saveFile = new FileOutputStream(fileLocation);
-	 * 
-	 * ObjectOutputStream codingSaveFile = new ObjectOutputStream(saveFile);
-	 * 
-	 * NoteBook noteBook = NoteBookProvider.getInstance().getNoteBook();
-	 * 
-	 * for (Note note : noteBook.getNotes()) {
-	 * 
-	 * codingSaveFile.writeObject(note);
-	 * 
-	 * codingSaveFile.reset();
-	 * 
-	 * }
-	 * 
-	 * codingSaveFile.close();
-	 * 
-	 * saveFile.close();
-	 * 
-	 * } catch (FileNotFoundException e) {
-	 * 
-	 * e.printStackTrace();
-	 * 
-	 * } catch (IOException e) {
-	 * 
-	 * e.printStackTrace();
-	 * 
-	 * }
-	 * 
-	 * }
-	 */
+		try {
+			if (DAOFactory.getInstance().getNoteBookDAO().loadNotesFromFile(noteBook.getNotes())) {
+				return true;
+			} else {
+				return false;
+			}
 
+		} catch (DAOException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+
+	public List<String> findNoteByContent(String keyWord, int userID) throws ServiceException {
+
+		keyWord = keyWord.trim();
+		if (keyWord == null || keyWord.length() < 1 || userID == 0) {
+			throw new ServiceException("Wrong data format. Pls try Again");
+		}
+		List<String> findNoteByContent = new ArrayList<>();
+
+		try {
+			findNoteByContent = DAOFactory.getInstance().getNoteBookDAO().findNoteByContent(keyWord, userID);
+			if (findNoteByContent != null) {
+				return findNoteByContent;
+			} else {
+				throw new ServiceException("Nothing was found");
+			}
+		} catch (DAOException e) {
+			throw new ServiceException(e.getMessage());
+		}
+
+	}
+
+	@Override
+	public boolean createNewNoteBook(int userID) throws ServiceException {
+
+		if (userID <= 0) {
+			throw new ServiceException("Wrong UserId Number");
+		}
+
+		try {
+			if (DAOFactory.getInstance().getNoteBookDAO().createNewNoteBook(userID)) {
+				return true;
+			}
+		} catch (DAOException e) {
+			throw new ServiceException(e.getMessage());
+		}
+
+		return false;
+
+	}
+
+	@Override
+	public List<String> showAllNotes(int userID) throws ServiceException {
+
+		if (userID <= 0) {
+			throw new ServiceException("ERROR! Wrong UserID!");
+		}
+
+		List<String> showNotesList = new ArrayList<>();
+
+		try {
+			showNotesList = DAOFactory.getInstance().getNoteBookDAO().showAllNotes(userID);
+			if (showNotesList != null) {
+				return showNotesList;
+			} else {
+				throw new ServiceException("ERROR! Notes not found try again");
+			}
+		} catch (DAOException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+
+	@Override
+	public boolean saveNoteBook(int userID) throws ServiceException {
+
+		if (userID <= 0) {
+			throw new ServiceException("Error!!! Wrong userID");
+		}
+
+		try {
+			if (DAOFactory.getInstance().getNoteBookDAO().saveNoteBook(userID)) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (DAOException e) {
+			throw new ServiceException(e.getMessage());
+		}
+
+	}
+
+	@Override
+	public boolean addNote(Note note, int userID) throws ServiceException {
+
+		if (note == null || userID <= 0) {
+			throw new ServiceException("Error! Wrong data!!");
+		}
+
+		try {
+			if (DAOFactory.getInstance().getNoteBookDAO().addNote(note, userID)) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (DAOException e) {
+			throw new ServiceException(e.getMessage());
+		}
+
+	}
+
+}
